@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -30,85 +31,16 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { useUsers, User as UserType } from "@/contexts/UserContext";
 
 const Users = () => {
   const { toast } = useToast();
+  const { users, deleteUser } = useUsers();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Mock user data
-  const users = [
-    {
-      id: "1",
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      role: "Admin",
-      status: "Active",
-      lastActive: "5m ago",
-      avatarInitials: "AJ",
-    },
-    {
-      id: "2",
-      name: "Bob Smith",
-      email: "bob.smith@example.com",
-      role: "Editor",
-      status: "Active",
-      lastActive: "2h ago",
-      avatarInitials: "BS",
-    },
-    {
-      id: "3",
-      name: "Carol Williams",
-      email: "carol.williams@example.com",
-      role: "Viewer",
-      status: "Inactive",
-      lastActive: "3d ago",
-      avatarInitials: "CW",
-    },
-    {
-      id: "4",
-      name: "Dave Brown",
-      email: "dave.brown@example.com",
-      role: "Editor",
-      status: "Active",
-      lastActive: "1h ago",
-      avatarInitials: "DB",
-    },
-    {
-      id: "5",
-      name: "Eve Davis",
-      email: "eve.davis@example.com",
-      role: "Viewer",
-      status: "Active",
-      lastActive: "Just now",
-      avatarInitials: "ED",
-    },
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-green-500";
-      case "Inactive":
-        return "bg-amber-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "Admin":
-        return "destructive";
-      case "Editor":
-        return "default";
-      case "Viewer":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
-
   const handleDeleteUser = (userId: string, userName: string) => {
+    deleteUser(userId);
     toast({
       title: "User deleted",
       description: `${userName} has been removed from the system.`,
@@ -123,6 +55,23 @@ const Users = () => {
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "Admin":
+        return "destructive";
+      case "Editor":
+        return "default";
+      case "Viewer":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    return status === "Active" ? "bg-green-500" : "bg-amber-500";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -132,7 +81,10 @@ const Users = () => {
             Manage your user accounts and permissions.
           </p>
         </div>
-        <Button className="sm:w-auto w-full">
+        <Button 
+          className="sm:w-auto w-full"
+          onClick={() => navigate("/add-user")}
+        >
           <UserPlus className="h-4 w-4 mr-2" />
           Add User
         </Button>

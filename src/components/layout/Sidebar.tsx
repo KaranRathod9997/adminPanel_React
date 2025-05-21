@@ -1,13 +1,25 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, ChevronRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { 
+  LayoutDashboard, 
+  Users, 
+  Settings, 
+  UserPlus, 
+  X 
+} from "lucide-react";
 
-const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+interface SidebarProps {
+  isMobileOpen: boolean;
+  onCloseMobileMenu: () => void;
+}
 
+const Sidebar: React.FC<SidebarProps> = ({ 
+  isMobileOpen,
+  onCloseMobileMenu 
+}) => {
   const navItems = [
     {
       title: "Dashboard",
@@ -20,64 +32,100 @@ const Sidebar = () => {
       icon: <Users className="h-5 w-5" />,
     },
     {
-      title: "Content",
-      path: "/content",
-      icon: <FileText className="h-5 w-5" />,
+      title: "Add User",
+      path: "/add-user",
+      icon: <UserPlus className="h-5 w-5" />,
+    },
+    {
+      title: "Settings",
+      path: "/settings",
+      icon: <Settings className="h-5 w-5" />,
     },
   ];
 
   return (
-    <div
-      className={cn(
-        "bg-card border-r border-border h-screen transition-all duration-300 flex flex-col",
-        collapsed ? "w-16" : "w-64"
+    <>
+      {/* Mobile overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={onCloseMobileMenu}
+        />
       )}
-    >
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        {!collapsed && (
+      
+      {/* Sidebar for mobile */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-card transition-transform duration-300 ease-in-out md:hidden",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex h-16 items-center justify-between border-b border-border px-4">
           <div className="font-bold text-lg text-primary">Admin Panel</div>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className={cn("ml-auto", collapsed && "mx-auto")}
-        >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
+          <Button variant="ghost" size="icon" onClick={onCloseMobileMenu}>
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        <nav className="flex-1 space-y-1 p-4">
+          <ul className="space-y-2">
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )
+                  }
+                  onClick={onCloseMobileMenu}
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
-
-      <nav className="flex-1 pt-4">
-        <ul className="space-y-1 px-2">
-          {navItems.map((item) => (
-            <li key={item.path}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-accent text-foreground hover:text-accent-foreground"
-                  )
-                }
-              >
-                {item.icon}
-                {!collapsed && <span>{item.title}</span>}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div className="p-4 border-t border-border mt-auto">
-        {!collapsed && (
-          <div className="text-xs text-muted-foreground">
-            Admin Panel v1.0
-          </div>
-        )}
+      
+      {/* Sidebar for desktop */}
+      <div className="hidden w-64 border-r border-border bg-card md:flex md:flex-col">
+        <div className="flex h-16 items-center border-b border-border px-4">
+          <div className="font-bold text-lg text-primary">Admin Panel</div>
+        </div>
+        
+        <nav className="flex-1 space-y-1 p-4">
+          <ul className="space-y-2">
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )
+                  }
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        
+        <div className="border-t border-border p-4 text-xs text-muted-foreground">
+          Admin Panel v1.0
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
